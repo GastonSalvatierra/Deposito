@@ -9,9 +9,12 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "bootstrap": "^5.3.3",
+    "next": "14.2.1",
     "react": "^18",
     "react-dom": "^18",
-    "next": "14.2.1"
+    "react-dropzone": "^14.3.5",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "eslint": "^8",
