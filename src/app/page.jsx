@@ -1,5 +1,5 @@
 import style from "./page.module.css";
-import Select from "@/components/select";
+import Select from "../components/Select"
 function Page() {
   return (
     <section className="container-fluid">
