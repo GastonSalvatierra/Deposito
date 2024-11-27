@@ -1,9 +1,9 @@
 "use client";
-import style from "../app/page.module.css";
 
 import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import * as XLSX from "xlsx";
+import style from "../app/page.module.css";
 
 function Select() {
   const [selectedDrogueria, setSelectedDrogueria] = useState("1");
@@ -32,24 +32,85 @@ function Select() {
 
       const sheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
-
       const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
-      const selectedData = jsonData.map((row) => [row[0], row[1], row[4], row[6]]);
-      const truncatedData = selectedData.slice(0, selectedData.length - 4);
-
-      if (truncatedData.length > 1) {
-        const headers = truncatedData[0];
-        const data = truncatedData.slice(1);
-
-        setTableHeaders(headers);
-        setTableData(data);
-        formatTableData(data); // Formatear los datos para la nueva tabla
-      } else {
-        alert("El archivo no contiene suficientes datos válidos.");
+      // Aquí definimos la lógica de procesamiento basada en la droguería seleccionada
+      switch (selectedDrogueria) {
+        case "1": // Disval
+          processDisvalData(jsonData);
+          break;
+        case "2": // Monroe (lógica diferente)
+          processMonroeData(jsonData);
+          break;
+        case "3": // Asoprofarma (lógica diferente)
+          processAsoprofarmaData(jsonData);
+          break;
+        case "4": // Suizo (lógica diferente)
+          processSuizoData(jsonData);
+          break;
+        case "5": // Del Sud (lógica diferente)
+          processDelSudData(jsonData);
+          break;
+        default:
+          alert("Droguería no reconocida");
+          break;
       }
     };
     reader.readAsBinaryString(file);
+  };
+
+  const processDisvalData = (data) => {
+    const selectedData = data.map((row) => [row[0], row[1], row[4], row[6]]);
+    const truncatedData = selectedData.slice(0, selectedData.length - 4);
+
+    if (truncatedData.length > 1) {
+      const headers = truncatedData[0];
+      const rows = truncatedData.slice(1);
+
+      setTableHeaders(headers);
+      setTableData(rows);
+      formatTableData(rows); // Aplica la transformación específica de Disval
+    } else {
+      alert("El archivo no contiene suficientes datos válidos.");
+    }
+  };
+
+  const processMonroeData = (data) => {
+    // Eliminar las primeras dos filas (índices 0 y 1)
+    const filteredData = data.slice(2);
+  
+    // Seleccionar las columnas M (12), N (13), S (18), T (19)
+    const selectedData = filteredData.map((row) => [row[12], row[13], row[18], row[19]]);
+  
+    // Eliminar las últimas 4 filas si hay menos de 4 filas de datos
+    const truncatedData = selectedData.slice(0, selectedData.length - 4);
+  
+    if (truncatedData.length > 1) {
+      const headers = ["Codigo de barras", "Descripcion", "Total", "Cantidad"];
+      const rows = truncatedData;
+  
+      setTableHeaders(headers);
+      setTableData(rows);
+      formatMonroeTableData(rows); // Llamamos a la nueva función de formateo para Monroe
+    } else {
+      alert("El archivo no contiene suficientes datos válidos.");
+    }
+  };
+  
+
+  const processAsoprofarmaData = (data) => {
+    // Agregar lógica específica para Asoprofarma
+    // Procesa el archivo según el formato de Asoprofarma
+  };
+
+  const processSuizoData = (data) => {
+    // Agregar lógica específica para Suizo
+    // Procesa el archivo según el formato de Suizo
+  };
+
+  const processDelSudData = (data) => {
+    // Agregar lógica específica para Del Sud
+    // Procesa el archivo según el formato de Del Sud
   };
 
   const formatNumber = (number) => {
@@ -58,47 +119,66 @@ function Select() {
     }
     return number; // Devuelve el valor original si no es un número
   };
-  
+
   const formatTableData = (data) => {
     const today = new Date();
     const futureDate = new Date(today);
     futureDate.setFullYear(today.getFullYear() + 3);
-  
+
     const formattedData = data.map((row) => ({
-      Código: row[1], // Columna B
+      Código: row[1],
       Descripción: row[0],
-      Cantidad: row[2], // Columna E
-      Unidad: "UN", // Texto fijo
-      "Precio Unit.": "", // Campo vacío
-      Neto: formatNumber(row[3]), // Formatear Neto con la misma función
-      Cuf: "DEPFA", // Texto fijo
-      "Fec.Vto.": futureDate.toLocaleDateString("es-ES"), // Fecha actual + 3 años
-      Lote: "", // Campo vacío
-      "N°Serie": "", // Campo vacío
-      "Col. Datos Partidas": "", // Campo vacío
-      "Col.Datos Atrib.": "", // Campo vacío
+      Cantidad: row[2],
+      Unidad: "UN",
+      "Precio Unit.": "",
+      Neto: formatNumber(row[3]),
+      Cuf: "DEPFA",
+      "Fec.Vto.": futureDate.toLocaleDateString("es-ES"),
+      Lote: "",
+      "N°Serie": "",
+      "Col. Datos Partidas": "",
+      "Col.Datos Atrib.": "",
+    }));
+
+    setFormattedData(formattedData);
+  };
+
+  const formatMonroeTableData = (data) => {
+    const today = new Date();
+    const futureDate = new Date(today);
+    futureDate.setFullYear(today.getFullYear() + 3);
+  
+    // Formato específico para Monroe
+    const formattedData = data.map((row) => ({
+      Código: row[0],
+      Descripción: row[1],
+      Cantidad: row[3],
+      Unidad: "UN",
+      "Precio Unit.": "",
+      Neto: formatNumber(row[2]),
+      Cuf: "DEPFA",
+      "Fec.Vto.": futureDate.toLocaleDateString("es-ES"),
+      Lote: "",
+      "N°Serie": "",
+      "Col. Datos Partidas": "",
+      "Col.Datos Atrib.": "",
     }));
   
     setFormattedData(formattedData);
   };
-  
+
   const exportToExcel = () => {
-    // Verificar si la tabla formateada tiene datos
     if (formattedData.length > 0) {
-      // Convertir los datos a un formato de hoja de Excel
       const ws = XLSX.utils.json_to_sheet(formattedData);
-  
-      // Crear un libro de trabajo (workbook)
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Compras");
-  
-      // Generar el archivo .xls y activarlo para la descarga
-      XLSX.writeFile(wb, "COMPRAS.xlsx");
+      // Cambiar 'xlsx' por 'xls' en el tipo de libro
+      XLSX.writeFile(wb, "COMPRAS.xls", { bookType: "xls" });
     } else {
       alert("No hay datos para exportar.");
     }
   };
-  
+
   return (
     <div className="container-fluid mt-5 d-flex flex-column justify-content-center">
       <label className="text-light">Seleccionar droguería</label>
@@ -115,7 +195,7 @@ function Select() {
         <option value="4">Suizo</option>
         <option value="5">Del Sud</option>
       </select>
-  
+
       <div
         className={`${style.archivos} text-light d-flex flex-column align-items-center justify-content-center mt-3 p-3`}
       >
@@ -125,8 +205,8 @@ function Select() {
           alt="Upload Icon"
           style={{ maxWidth: "100px", color: "white" }}
         />
-        <p className="text-white">Subir archivo</p>
-  
+        <p className="upload-text">Subir archivo</p>
+
         <input
           type="file"
           accept=".xlsx,.xls"
@@ -134,17 +214,14 @@ function Select() {
           className="form-control"
         />
       </div>
-  
+
       <div className="d-flex justify-content-center mt-3">
-        <button
-          className="btn btn-light col-3"
-          onClick={exportToExcel} // Vinculamos la función de exportación
-        >
+        <button className="btn btn-secondary col-3" onClick={exportToExcel}>
           Convertir
         </button>
       </div>
-  
-      {/* {tableData.length > 0 && (
+
+     {/*  {tableData.length > 0 && (
         <div className="mt-5">
           <h5 className="text-light">Tabla Original</h5>
           <table className="table table-bordered table-striped table-hover">
@@ -169,7 +246,7 @@ function Select() {
           </table>
         </div>
       )}
-  
+
       {formattedData.length > 0 && (
         <div className="mt-5">
           <h5 className="text-light">Tabla Formateada</h5>
@@ -195,7 +272,6 @@ function Select() {
       )} */}
     </div>
   );
-  
 }
 
 export default Select;
