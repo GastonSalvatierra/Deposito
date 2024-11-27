@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import * as XLSX from "xlsx";
 import style from "../app/page.module.css";
+import { redirect } from "next/dist/server/api-utils";
 
 function Select() {
   const [selectedDrogueria, setSelectedDrogueria] = useState("1");
@@ -44,15 +45,25 @@ function Select() {
           break;
         case "3": // Asoprofarma (lógica diferente)
           processAsoprofarmaData(jsonData);
+          alert("Droguería inhabilitada");
+          window.location.reload(); // Reinicia la página
+
           break;
         case "4": // Suizo (lógica diferente)
           processSuizoData(jsonData);
+          alert("Droguería inhabilitada");
+          window.location.reload(); // Reinicia la página
+
           break;
         case "5": // Del Sud (lógica diferente)
           processDelSudData(jsonData);
+          alert("Droguería inhabilitada");
+          window.location.reload(); // Reinicia la página
+
           break;
         default:
-          alert("Droguería no reconocida");
+          alert("Droguería inhabilitada");
+          window.location.reload(); // Reinicia la página
           break;
       }
     };
