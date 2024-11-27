@@ -5,7 +5,7 @@ function Page() {
     <section className="container-fluid">
       <div className={`${style.main} row`}>
         {/* Sección 1 */}
-        <div className="col-6">SECCION 1</div>
+        <div className="col-6"></div>
 
         {/* Sección 2 */}
         <div className="col-6 d-flex justify-content-center align-items-center border-danger">

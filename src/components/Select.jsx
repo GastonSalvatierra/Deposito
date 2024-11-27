@@ -125,7 +125,7 @@ function Select() {
           alt="Upload Icon"
           style={{ maxWidth: "100px", color: "white" }}
         />
-        <p className="upload-text">Subir archivo</p>
+        <p className="text-white">Subir archivo</p>
   
         <input
           type="file"
@@ -137,14 +137,14 @@ function Select() {
   
       <div className="d-flex justify-content-center mt-3">
         <button
-          className="btn btn-secondary col-3"
+          className="btn btn-light col-3"
           onClick={exportToExcel} // Vinculamos la función de exportación
         >
           Convertir
         </button>
       </div>
   
-      {tableData.length > 0 && (
+      {/* {tableData.length > 0 && (
         <div className="mt-5">
           <h5 className="text-light">Tabla Original</h5>
           <table className="table table-bordered table-striped table-hover">
@@ -192,7 +192,7 @@ function Select() {
             </tbody>
           </table>
         </div>
-      )}
+      )} */}
     </div>
   );
   

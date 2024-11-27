@@ -5,13 +5,22 @@
 }
 
 body {
-  background: url('/fondo.svg');
-  background-size: cover; /* Ajusta el tamaño al contenedor */
+  background: url('/fondo.png') no-repeat center center;
+  background-size: cover; /* Asegura que la imagen cubra todo el fondo sin espacios en blanco */
   margin: 0;
   padding: 0;
   height: 100vh;
   width: 100vw;
+  overflow: hidden; /* Evita desplazamiento si el tamaño del fondo se ajusta */
 }
+
+@media (max-width: 1024px) {
+  body {
+    background-size: contain; /* Hace que la imagen se ajuste sin recortes */
+  }
+}
+
+
 
 
 a {
