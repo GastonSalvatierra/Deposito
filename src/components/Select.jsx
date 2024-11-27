@@ -93,12 +93,10 @@ function Select() {
     // Seleccionar las columnas M (12), N (13), S (18), T (19)
     const selectedData = filteredData.map((row) => [row[12], row[13], row[18], row[19]]);
   
-    // Eliminar las últimas 4 filas si hay menos de 4 filas de datos
-    const truncatedData = selectedData.slice(0, selectedData.length - 4);
   
-    if (truncatedData.length > 1) {
+    if (selectedData.length > 1) {
       const headers = ["Codigo de barras", "Descripcion", "Total", "Cantidad"];
-      const rows = truncatedData;
+      const rows = selectedData;
   
       setTableHeaders(headers);
       setTableData(rows);
