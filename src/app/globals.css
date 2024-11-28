@@ -4,26 +4,14 @@
   margin: 0;
 }
 
+
 body {
   background: url('/fondo.png') no-repeat center center;
-  background-size: cover; /* Asegura que la imagen cubra todo el fondo sin espacios en blanco */
+  background-size: 100% auto; /* Mantiene el ancho y ajusta la altura proporcionalmente */
+  background-position: center center; /* Centra la imagen */
+  background-attachment: fixed; /* Fija la imagen mientras se desplaza el contenido */
   margin: 0;
   padding: 0;
-  height: 100vh;
-  width: 100vw;
-  overflow: hidden; /* Evita desplazamiento si el tamaño del fondo se ajusta */
-}
-
-@media (max-width: 1024px) {
-  body {
-    background-size: contain; /* Hace que la imagen se ajuste sin recortes */
-  }
-}
-
-
-
-
-a {
-  color: inherit;
-  text-decoration: none;
+  height: 100%; /* Asegura que el body ocupe todo el alto de la pantalla */
+  width: 100%;
 }
