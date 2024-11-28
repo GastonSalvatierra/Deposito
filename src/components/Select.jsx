@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import * as XLSX from "xlsx";
 import style from "../app/page.module.css";
-import { redirect } from "next/dist/server/api-utils";
 
 function Select() {
   const [selectedDrogueria, setSelectedDrogueria] = useState("1");
@@ -89,15 +88,19 @@ function Select() {
   const processMonroeData = (data) => {
     // Eliminar las primeras dos filas (índices 0 y 1)
     const filteredData = data.slice(2);
-  
+
     // Seleccionar las columnas M (12), N (13), S (18), T (19)
-    const selectedData = filteredData.map((row) => [row[12], row[13], row[18], row[19]]);
-  
-  
+    const selectedData = filteredData.map((row) => [
+      row[12],
+      row[13],
+      row[18],
+      row[19],
+    ]);
+
     if (selectedData.length > 1) {
       const headers = ["Codigo de barras", "Descripcion", "Total", "Cantidad"];
       const rows = selectedData;
-  
+
       setTableHeaders(headers);
       setTableData(rows);
       formatMonroeTableData(rows); // Llamamos a la nueva función de formateo para Monroe
@@ -105,7 +108,6 @@ function Select() {
       alert("El archivo no contiene suficientes datos válidos.");
     }
   };
-  
 
   const processAsoprofarmaData = (data) => {
     // Agregar lógica específica para Asoprofarma
@@ -156,7 +158,7 @@ function Select() {
     const today = new Date();
     const futureDate = new Date(today);
     futureDate.setFullYear(today.getFullYear() + 3);
-  
+
     // Formato específico para Monroe
     const formattedData = data.map((row) => ({
       Código: row[0],
@@ -172,7 +174,7 @@ function Select() {
       "Col. Datos Partidas": "",
       "Col.Datos Atrib.": "",
     }));
-  
+
     setFormattedData(formattedData);
   };
 
@@ -187,6 +189,90 @@ function Select() {
       alert("No hay datos para exportar.");
     }
   };
+
+  const openEditableTable = () => {
+    const newWindow = window.open("", "_blank", "width=800,height=600");
+    const tableHtml = `
+      <html>
+        <head>
+          <title>Editar Datos</title>
+          <style>
+            table {
+              width: 100%;
+              border-collapse: collapse;
+            }
+            th, td {
+              border: 1px solid #ddd;
+              padding: 8px;
+              text-align: left;
+            }
+            th {
+              background-color: #f2f2f2;
+            }
+          </style>
+        </head>
+        <body>
+          <h3>Editar Tabla</h3>
+          <table id="editableTable">
+            <thead>
+              <tr>
+                ${Object.keys(formattedData[0])
+                  .map((key) => `<th>${key}</th>`)
+                  .join("")}
+              </tr>
+            </thead>
+            <tbody>
+              ${formattedData
+                .map(
+                  (row, rowIndex) =>
+                    `<tr>
+                      ${Object.entries(row)
+                        .map(
+                          ([key, value]) =>
+                            `<td>
+                              ${
+                                key === "Lote" || key === "N°Serie"
+                                  ? `<input type="text" value="${value}" data-row="${rowIndex}" data-key="${key}" />`
+                                  : value
+                              }
+                            </td>`
+                        )
+                        .join("")}
+                    </tr>`
+                )
+                .join("")}
+            </tbody>
+          </table>
+          <button id="saveChanges">Guardar Cambios</button>
+          <script>
+            document.getElementById('saveChanges').onclick = function() {
+              const inputs = document.querySelectorAll('input');
+              const updatedData = ${JSON.stringify(formattedData)};
+              inputs.forEach(input => {
+                const rowIndex = input.getAttribute('data-row');
+                const key = input.getAttribute('data-key');
+                updatedData[rowIndex][key] = input.value;
+              });
+              window.opener.postMessage({ updatedData }, '*');
+              window.close();
+            };
+          </script>
+        </body>
+      </html>
+    `;
+    newWindow.document.write(tableHtml);
+    newWindow.document.close();
+  };
+
+  useEffect(() => {
+    const handleMessage = (event) => {
+      if (event.data && event.data.updatedData) {
+        setFormattedData(event.data.updatedData);
+      }
+    };
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
 
   return (
     <div className="container-fluid mt-5 d-flex flex-column justify-content-center">
@@ -225,12 +311,23 @@ function Select() {
       </div>
 
       <div className="d-flex justify-content-center mt-3">
-        <button className="btn btn-secondary col-3" onClick={exportToExcel}>
+        <button
+          className="btn btn-light col-3"
+          onClick={openEditableTable}
+          disabled={formattedData.length === 0}
+        >
+          Trazables
+        </button>
+        <button
+          className="btn btn-light col-3 ms-2"
+          onClick={exportToExcel}
+          disabled={formattedData.length === 0}
+        >
           Convertir
         </button>
       </div>
 
-     {/*  {tableData.length > 0 && (
+      {/*  {tableData.length > 0 && (
         <div className="mt-5">
           <h5 className="text-light">Tabla Original</h5>
           <table className="table table-bordered table-striped table-hover">
