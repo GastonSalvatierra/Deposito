@@ -93,7 +93,7 @@ function Select() {
     const selectedData = filteredData.map((row) => [
       row[12],
       row[13],
-      row[18],
+      row[15],
       row[19],
     ]);
 
