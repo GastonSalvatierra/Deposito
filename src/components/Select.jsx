@@ -38,9 +38,11 @@ function Select() {
       switch (selectedDrogueria) {
         case "1": // Disval
           processDisvalData(jsonData);
+
           break;
         case "2": // Monroe (lógica diferente)
           processMonroeData(jsonData);
+
           break;
         case "3": // Asoprofarma (lógica diferente)
           processAsoprofarmaData(jsonData);
@@ -56,8 +58,6 @@ function Select() {
           break;
         case "5": // Del Sud (lógica diferente)
           processDelSudData(jsonData);
-          alert("Droguería inhabilitada");
-          window.location.reload(); // Reinicia la página
 
           break;
         default:
@@ -108,6 +108,30 @@ function Select() {
       alert("El archivo no contiene suficientes datos válidos.");
     }
   };
+  
+  const processDelSudData = (data) => {
+    // Eliminar las primeras dos filas (índices 0 y 1)
+    const filteredData = data.slice(5);
+
+    // Seleccionar las columnas M (12), N (13), S (18), T (19)
+    const selectedData = filteredData.map((row) => [
+      row[2],
+      row[3],
+      row[11],
+      row[8],
+    ]);
+
+    if (selectedData.length > 1) {
+      const headers = ["Codigo de barras", "Descripcion", "Total", "Cantidad"];
+      const rows = selectedData;
+
+      setTableHeaders(headers);
+      setTableData(rows);
+      formatMonroeTableData(rows); // Llamamos a la nueva función de formateo para Monroe
+    } else {
+      alert("El archivo no contiene suficientes datos válidos.");
+    }
+  };
 
   const processAsoprofarmaData = (data) => {
     // Agregar lógica específica para Asoprofarma
@@ -119,10 +143,6 @@ function Select() {
     // Procesa el archivo según el formato de Suizo
   };
 
-  const processDelSudData = (data) => {
-    // Agregar lógica específica para Del Sud
-    // Procesa el archivo según el formato de Del Sud
-  };
 
   const formatNumber = (number) => {
     if (typeof number === "number") {
@@ -185,6 +205,10 @@ function Select() {
       XLSX.utils.book_append_sheet(wb, ws, "Compras");
       // Cambiar 'xlsx' por 'xls' en el tipo de libro
       XLSX.writeFile(wb, "COMPRAS.xls", { bookType: "xls" });
+
+      window.location.reload(); // Reinicia la página
+
+
     } else {
       alert("No hay datos para exportar.");
     }
